@@ -1,9 +1,9 @@
 #define _WIN32_IE 0x0500
 
-#define NOTI_LOCKED        L"¼üÅÌÒÑËø¶¨"
-#define NOTI_UNLOCKED      L"¼üÅÌÒÑ½âËø"
-#define NOTI_LOCK_FAILED   L"¼üÅÌËø¶¨Ê§°Ü"
-#define NOTI_UNLOCK_FAILED L"¼üÅÌ½âËøÊ§°Ü"
+#define NOTI_LOCKED        L"é”®ç›˜å·²é”å®š"
+#define NOTI_UNLOCKED      L"é”®ç›˜å·²è§£é”"
+#define NOTI_LOCK_FAILED   L"é”®ç›˜é”å®šå¤±è´¥"
+#define NOTI_UNLOCK_FAILED L"é”®ç›˜è§£é”å¤±è´¥"
 
 #include <Windows.h>
 #include <string>
@@ -12,29 +12,29 @@
 using namespace std;
 enum
 {
-	WM_TRAYICON = WM_USER + 100, //×Ô¶¨ÒåÍĞÅÌÏûÏ¢
+	WM_TRAYICON = WM_USER + 100, //è‡ªå®šä¹‰æ‰˜ç›˜æ¶ˆæ¯
 	ID_LOCK,
 	ID_UNLOCK,
 	ID_EXIT
 };
 
 
-HHOOK KBhook = NULL;//¹³×Ó¾ä±ú
+HHOOK KBhook = NULL;//é’©å­å¥æŸ„
 HINSTANCE hInst;
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam);//¼üÅÌ¹³×Ó»Øµ÷º¯Êı
+LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam);//é”®ç›˜é’©å­å›è°ƒå‡½æ•°
 
-void TrayMessage(HWND hwnd, int nFlag);//ÏÔÊ¾ÍĞÅÌÆøÅİĞÅÏ¢
-void DestroyTrayIcon(HWND hwnd);//É¾³ıÍĞÅÌÍ¼±ê
-void CreateTrayMenu(HWND hwnd);//½¨Á¢ÍĞÅÌ²Ëµ¥
-BOOL isValidMessage(WORD message);          //ÑéÖ¤ĞÅÏ¢µÄºÏ·¨ĞÔ
+void TrayMessage(HWND hwnd, int nFlag);//æ˜¾ç¤ºæ‰˜ç›˜æ°”æ³¡ä¿¡æ¯
+void DestroyTrayIcon(HWND hwnd);//åˆ é™¤æ‰˜ç›˜å›¾æ ‡
+void CreateTrayMenu(HWND hwnd);//å»ºç«‹æ‰˜ç›˜èœå•
+BOOL isValidMessage(WORD message);          //éªŒè¯ä¿¡æ¯çš„åˆæ³•æ€§
 
-/*void PopUpMenu(ClipBoard clipboard, POINT point);   */      //µ¯³öÑ¡Ôñ²Ëµ¥
+/*void PopUpMenu(ClipBoard clipboard, POINT point);   */      //å¼¹å‡ºé€‰æ‹©èœå•
 VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt);
 
-int EnableKeyboardCapture();//¼¤»î¼üÅÌ¹³×Ó
-int DisableKeyboardCapture();//½â³ı¼üÅÌ¹³×Ó
+int EnableKeyboardCapture();//æ¿€æ´»é”®ç›˜é’©å­
+int DisableKeyboardCapture();//è§£é™¤é”®ç›˜é’©å­
 
 void OnLock(HWND hwnd);
 void OnUnlock(HWND hwnd);
@@ -43,13 +43,12 @@ void OnUnlock(HWND hwnd);
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
 {
 	HWND hwnd;
-	HICON Icon;
 	MSG msg;
 	NOTIFYICONDATA IconData;
 	WNDCLASS wndclass;
 	static TCHAR szAppName[] = { L"Keyboard Lock" };
 	hInst = hInstance;
-	//³õÊ¼»¯´°¿Ú
+	//åˆå§‹åŒ–çª—å£
 	wndclass.style = CS_HREDRAW | CS_VREDRAW;
 	wndclass.lpfnWndProc = WndProc;
 	wndclass.cbClsExtra = 0;
@@ -65,8 +64,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 
 	hwnd = CreateWindow(szAppName, szAppName, WS_OVERLAPPEDWINDOW, 0, 0, 0, 0, 0, 0, hInstance, NULL);
 
-	//ÕâÀïÖ®ºó²»ĞèÒªÏÔÊ¾´°¿Ú£¬ĞÂ½¨ÍĞÅÌÍ¼±ê£¬²Ù×÷È«²¿ÔÚÍĞÅÌÍ¼±êÉÏÍê³É
-	//Warning: HWND ºÍ HINSTANCE ²»¶ÔµÄ»°£¬¾Í»áÓĞÎÊÌâ
+	//è¿™é‡Œä¹‹åä¸éœ€è¦æ˜¾ç¤ºçª—å£ï¼Œæ–°å»ºæ‰˜ç›˜å›¾æ ‡ï¼Œæ“ä½œå…¨éƒ¨åœ¨æ‰˜ç›˜å›¾æ ‡ä¸Šå®Œæˆ
+	//Warning: HWND å’Œ HINSTANCE ä¸å¯¹çš„è¯ï¼Œå°±ä¼šæœ‰é—®é¢˜
 	IconData.cbSize = sizeof(NOTIFYICONDATA);
 	IconData.hWnd = hwnd;
 	IconData.uID = (UINT)hInstance;
@@ -74,8 +73,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine,
 	IconData.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
 	IconData.uFlags = NIF_MESSAGE + NIF_ICON + NIF_TIP;
 	IconData.uCallbackMessage = WM_TRAYICON;
-	StringCchCopy(IconData.szTip, ARRAYSIZE(IconData.szTip), L"µã»÷ÉèÖÃ");
-	//strcpy(IconData.szTip, "¼üÅÌËø");
+	StringCchCopy(IconData.szTip, ARRAYSIZE(IconData.szTip), L"ç‚¹å‡»è®¾ç½®");
+	//strcpy(IconData.szTip, "é”®ç›˜é”");
 
 	Shell_NotifyIcon(NIM_ADD, &IconData);
 
@@ -96,7 +95,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 		if (HIWORD(wParam) == 0)
 		{
-			//²Ëµ¥¶¯×÷µÄÏûÏ¢
+			//èœå•åŠ¨ä½œçš„æ¶ˆæ¯
 			switch (LOWORD(wParam))
 			{
 			case ID_LOCK:
@@ -135,7 +134,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK KeyboardHookProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-	//ÊÇ¼üÅÌµÄ¶¯×÷È«²¿ºöÂÔ
+	//æ˜¯é”®ç›˜çš„åŠ¨ä½œå…¨éƒ¨å¿½ç•¥
 	if (nCode == HC_ACTION)
 	{
 		return 1;
@@ -152,7 +151,7 @@ BOOL isValidMessage(WORD message)
 string copyToCustomeClipBoard()
 {
 	char * buffer = NULL;
-	//´ò¿ª¼ôÌù°å
+	//æ‰“å¼€å‰ªè´´æ¿
 	string fromClipboard;
 	if (OpenClipboard(NULL))
 	{
@@ -199,7 +198,7 @@ VOID APIENTRY DisplayContextMenu(HWND hwnd, POINT pt)
 
 int EnableKeyboardCapture()
 {
-	// 13 ±íÊ¾Ê¹ÓÃµÍ¼¶¼üÅÌ¹³×Ó£¬ºÍ WM_KEYBOARD ²»Í¬
+	// 13 è¡¨ç¤ºä½¿ç”¨ä½çº§é”®ç›˜é’©å­ï¼Œå’Œ WM_KEYBOARD ä¸åŒ
 	KBhook = !KBhook ? SetWindowsHookEx(13, (HOOKPROC)KeyboardHookProc, (HINSTANCE)GetModuleHandle(NULL), 0) : KBhook;
 
 	return (KBhook ? 1 : -1);
@@ -251,7 +250,7 @@ void TrayMessage(HWND hwnd, int nFlag)
 	default:
 		break;
 	}
-	/*strcpy(nid.szInfoTitle, (TCHAR )"¼üÅÌËø");*/
+	/*strcpy(nid.szInfoTitle, (TCHAR )"é”®ç›˜é”");*/
 	Shell_NotifyIcon(NIM_MODIFY, &nib);
 }
 
@@ -271,10 +270,10 @@ void CreateTrayMenu(HWND hwnd)
 {
 	HMENU hMenu;
 	hMenu = CreatePopupMenu();
-	AppendMenu(hMenu, MF_STRING, ID_LOCK, L"Ëø¶¨¼üÅÌ");
-	AppendMenu(hMenu, MF_STRING, ID_UNLOCK, L"½âËø¼üÅÌ");
+	AppendMenu(hMenu, MF_STRING, ID_LOCK, L"é”å®šé”®ç›˜");
+	AppendMenu(hMenu, MF_STRING, ID_UNLOCK, L"è§£é”é”®ç›˜");
 	AppendMenu(hMenu, MF_SEPARATOR, 0, NULL);
-	AppendMenu(hMenu, MF_STRING, ID_EXIT, L"ÍË³ö");
+	AppendMenu(hMenu, MF_STRING, ID_EXIT, L"é€€å‡º");
 
 	POINT pt;
 	GetCursorPos(&pt);
